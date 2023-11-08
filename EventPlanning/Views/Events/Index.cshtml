@@ -1,0 +1,46 @@
+﻿@model IEnumerable<EventPlanning.Models.Event>
+
+@{
+    ViewData["Title"] = "List of events";
+}
+
+<h1 class="display-1">@ViewData["Title"]</h1>
+
+@if (ViewBag.IsAdmin)
+{
+    <a class="btn btn-primary" asp-action="Create" role="button">Create new event</a>
+}
+
+@foreach (var @event in Model)
+{
+    <div class="row">
+        <div class="col-5">
+            <div class="card bg-light mt-3">
+                <h5 class="card-header">@(@event.Name)</h5>
+                <div class="card-body">
+                    <h5 class="card-title">@(@event.DateTime)</h5>
+                    @foreach (var prop in @event.Properties)
+                    {
+                        <p class="card-text">@prop.Name: @prop.Value</p>
+                    }
+                    @if (!ViewBag.IsAdmin)
+                    {
+                        <form asp-action="Register" method="post">
+                            <input type="hidden" value="@(@event.Id)" name="eventId">
+                            <input type="hidden" value="@ViewData["userId"]" name="userId">
+                            @if (!@event.RegisteredUsers.Any(u => u.Id == Guid.Parse((string)ViewData["userId"])))
+                            {
+                                <button class="btn btn-primary" type="submit">Register</button>
+                            }
+                            else
+                            {
+                                <b class="text-primary">Registered</b>
+                            }
+                        </form>
+                    }
+                    <i>Registered users: @(@event.RegisteredUsers.Count)/@(@event.MaxRegisteredUsers)</i>
+                </div>
+            </div>
+        </div>
+    </div>
+}
